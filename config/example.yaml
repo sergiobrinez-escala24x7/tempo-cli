@@ -1,0 +1,62 @@
+# Configuración operativa de Tempo CLI
+# Las credenciales van en ~/.tempo-cli/.env (NO aquí)
+
+defaults:
+  hours_per_day: 8
+  start_time: "09:00:00"
+  fill_mode: calendar_first  # calendar_first | template_only | ask
+  default_reviewer: juan  # alias del revisor por defecto (ver sección reviewers)
+
+reviewers:
+  - alias: juan
+    account_id: "712020:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"  # Atlassian Account ID
+    name: "Juan Pérez"
+  - alias: maria
+    account_id: "712020:yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy"
+    name: "María García"
+
+frequent_issues:
+  - key: EPE-123
+    alias: pipeline
+    description: "Desarrollo de pipeline de datos"
+    default_hours: 4
+  - key: EPE-456
+    alias: review
+    description: "Code review y soporte"
+    default_hours: 2
+  - key: EPE-789
+    alias: meetings
+    description: "Reuniones y ceremonias"
+    default_hours: 2
+
+templates:
+  normal:
+    - issue: pipeline
+      hours: 4
+      description: "Desarrollo de pipeline de datos"
+    - issue: review
+      hours: 2
+      description: "Code review y soporte"
+    - issue: meetings
+      hours: 2
+      description: "Reuniones y ceremonias"
+  light:
+    - issue: pipeline
+      hours: 6
+      description: "Desarrollo enfocado"
+    - issue: meetings
+      hours: 2
+      description: "Reuniones"
+  friday:
+    - issue: pipeline
+      hours: 3
+      description: "Desarrollo de pipeline"
+    - issue: review
+      hours: 2
+      description: "Code review"
+    - issue: meetings
+      hours: 2
+      description: "Reuniones y ceremonias"
+    - issue: docs
+      hours: 1
+      description: "Documentación de sprint"

@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environment
+.venv/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+
+# Config con tokens (nunca commitear)
+config/local.yaml
+
+# Vault cifrado y salt (nunca commitear aunque estén cifrados)
+credentials.enc
+.salt
+
+# OS
+.DS_Store
+Thumbs.db
