@@ -167,38 +167,38 @@ def find_matching_alias(event_title: str, config: dict) -> tuple[str, str, str] 
     title_lower = event_title.lower().strip()
     frequent_issues = config.get("frequent_issues", [])
 
-    # 1. Match exacto por alias
-    for issue in frequent_issues:
-        alias = issue.get("alias", "")
-        if alias.lower() == title_lower:
-            return alias, issue["key"], issue.get("description", alias)
-
-    # 2. Match parcial: el título contiene el alias
-    for issue in frequent_issues:
-        alias = issue.get("alias", "")
-        if alias.lower() in title_lower:
-            return alias, issue["key"], issue.get("description", alias)
-
-    # 3. Match parcial: el alias contiene el título
-    for issue in frequent_issues:
-        alias = issue.get("alias", "")
-        if title_lower in alias.lower() and len(title_lower) > 3:
-            return alias, issue["key"], issue.get("description", alias)
-
-    # 4. Match por key de issue en el título (ej: "INT-83 blah", "algo PRCL-103 algo")
     import re
-    # Buscar issue keys en cualquier posición del título (case-insensitive)
+
+    # 1. PRIORIDAD MÁXIMA: issue key explícito en el título (en cualquier posición)
+    #    Ej: "Habilitacion SES - TSL-8", "Review DNS - TSL-90", "prcl-97 - minuta"
+    #    Un issue key explícito es la señal más confiable, tenga o no otras palabras.
     key_matches = re.findall(r'([A-Za-z]+-\d+)', event_title.strip())
     for found_key in key_matches:
         found_key_upper = found_key.upper()
         for issue in frequent_issues:
             if issue.get("key") == found_key_upper:
                 return issue.get("alias", found_key_upper), issue["key"], issue.get("description", "")
-
-    # 5. Si el título contiene un issue key que no está en frequent_issues,
-    #    devolver el key directamente para que se resuelva vía Jira
+    # Si hay un key pero no está en frequent_issues, usarlo directo (se resuelve vía Jira)
     if key_matches:
         return key_matches[0].upper(), key_matches[0].upper(), event_title.strip()
+
+    # 2. Match exacto por alias
+    for issue in frequent_issues:
+        alias = issue.get("alias", "")
+        if alias.lower() == title_lower:
+            return alias, issue["key"], issue.get("description", alias)
+
+    # 3. Match parcial: el título contiene el alias
+    for issue in frequent_issues:
+        alias = issue.get("alias", "")
+        if alias.lower() in title_lower:
+            return alias, issue["key"], issue.get("description", alias)
+
+    # 4. Match parcial: el alias contiene el título
+    for issue in frequent_issues:
+        alias = issue.get("alias", "")
+        if title_lower in alias.lower() and len(title_lower) > 3:
+            return alias, issue["key"], issue.get("description", alias)
 
     return None
 
