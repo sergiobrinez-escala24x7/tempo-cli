@@ -734,8 +734,10 @@ def fill(ctx, date, template, from_date, to_date, week, force, dry_run):
 @main.command(name="status")
 @click.option("--date", "-d", default=None, help="Fecha específica (YYYY-MM-DD)")
 @click.option("--week", "-w", is_flag=True, help="Mostrar semana actual")
+@click.option("--from", "from_date_opt", default=None, help="Fecha inicio del rango (YYYY-MM-DD)")
+@click.option("--to", "to_date_opt", default=None, help="Fecha fin del rango (YYYY-MM-DD)")
 @click.pass_context
-def status_cmd(ctx, date, week):
+def status_cmd(ctx, date, week, from_date_opt, to_date_opt):
     """Muestra worklogs registrados y estado del día."""
     from tempo_cli.config import get_hours_per_day
     from tempo_cli.utils import fmt_hours, get_week_range, parse_date
@@ -743,7 +745,14 @@ def status_cmd(ctx, date, week):
     config = ctx.obj["config"]
     hours_per_day = get_hours_per_day(config)
 
-    if week:
+    if from_date_opt and to_date_opt:
+        try:
+            from_date = parse_date(from_date_opt)
+            to_date = parse_date(to_date_opt)
+        except ValueError as e:
+            console.print(f"[red]Error: {e}[/red]")
+            return
+    elif week:
         from_date, to_date = get_week_range()
     else:
         try:
@@ -1261,21 +1270,22 @@ def timesheet(ctx):
 
 
 def _resolve_period(from_date: str | None, to_date: str | None, week: bool) -> tuple[date_type, date_type]:
-    """Resuelve el periodo de fechas para operaciones de timesheet."""
-    from datetime import timedelta
+    """Resuelve el periodo de fechas para operaciones de timesheet.
 
-    from tempo_cli.utils import get_week_range, parse_date
+    Tempo usa períodos lunes-domingo para timesheets.
+    """
+    from tempo_cli.utils import get_timesheet_period, parse_date
 
     if week:
-        return get_week_range()
+        return get_timesheet_period()
     elif from_date and to_date:
         return parse_date(from_date), parse_date(to_date)
     elif from_date:
         # Si solo dan from, asumimos hasta hoy
         return parse_date(from_date), date_type.today()
     else:
-        # Default: semana actual
-        return get_week_range()
+        # Default: semana actual (lun-dom)
+        return get_timesheet_period()
 
 
 def _resolve_reviewer(config: dict, reviewer_input: str) -> dict[str, str] | None:

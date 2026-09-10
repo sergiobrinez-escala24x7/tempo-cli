@@ -89,6 +89,17 @@ def get_week_range(target_date: date | None = None) -> tuple[date, date]:
     return monday, friday
 
 
+def get_timesheet_period(target_date: date | None = None) -> tuple[date, date]:
+    """Retorna el lunes y domingo de la semana de la fecha dada.
+
+    Tempo maneja los períodos de timesheet de lunes a domingo, no lunes a viernes.
+    """
+    d = target_date or date.today()
+    monday = d - timedelta(days=d.weekday())
+    sunday = monday + timedelta(days=6)
+    return monday, sunday
+
+
 _DAY_NAMES = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"]
 
 
